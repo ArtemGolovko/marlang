@@ -7,10 +7,11 @@ import (
 	"io/ioutil"
 
 	"../Lexer"
-	parser "../Parser"
+	"../Parser/ASTParser"
+	"../Parser/STParser"
 )
 
-type INode = parser.Node
+type ASTNode = ASTParser.Node
 
 const PROMPT = "> "
 
@@ -48,18 +49,19 @@ func ReadFile(filename string) {
 func Parse(code string) {
 	lexer := Lexer.New(code)
 	tokens := lexer.Lex()
-	tree := parser.Parse(tokens)
+	STree := STParser.Parse(tokens)
+	ASTree := ASTParser.Parse(STree)
 
 	fmt.Println("Tokens:")
 	for _, token := range tokens {
 		fmt.Println(token)
 	}
 
-	fmt.Println("Abstract tree:")
-	showNode(tree, "", 0)
+	fmt.Println("Abstract Syntax Tree:")
+	showASTNode(ASTree, "", 0)
 }
 
-func showNode(node *INode, prefix string, index int) {
+func showASTNode(node *ASTNode, prefix string, index int) {
 	if prefix == "" {
 		fmt.Printf("%d: ", index)
 		fmt.Println(node)
@@ -68,6 +70,6 @@ func showNode(node *INode, prefix string, index int) {
 		fmt.Println(node)
 	}
 	for i, n := range node.GetChildren() {
-		showNode(n, prefix+"   ", i)
+		showASTNode(n, prefix+"   ", i)
 	}
 }
